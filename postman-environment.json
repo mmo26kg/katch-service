@@ -1,0 +1,25 @@
+{
+    "id": "katch-service-environment",
+    "name": "Katch Service - Development",
+    "values": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3001",
+            "description": "Base URL for development environment",
+            "enabled": true
+        },
+        {
+            "key": "userId",
+            "value": "1",
+            "description": "Default user ID for testing",
+            "enabled": true
+        },
+        {
+            "key": "expenseId",
+            "value": "",
+            "description": "Will be auto-populated after creating an expense",
+            "enabled": true
+        }
+    ],
+    "_postman_variable_scope": "environment"
+}

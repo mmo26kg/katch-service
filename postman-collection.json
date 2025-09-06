@@ -1,0 +1,413 @@
+{
+    "info": {
+        "name": "Katch Service - User Expense API",
+        "description": "Complete API collection for User Expense management endpoints",
+        "version": "1.0.0",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3001",
+            "type": "string"
+        },
+        {
+            "key": "expenseId",
+            "value": "",
+            "type": "string",
+            "description": "UUID of the expense (will be set after creating an expense)"
+        },
+        {
+            "key": "userId",
+            "value": "1",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "Create User Expense",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "if (pm.response.code === 201) {",
+                            "    const response = pm.response.json();",
+                            "    pm.collectionVariables.set('expenseId', response.id);",
+                            "    pm.test('Expense created successfully', () => {",
+                            "        pm.expect(response.id).to.exist;",
+                            "        pm.expect(response.amount).to.equal('25.50');",
+                            "        pm.expect(response.category).to.equal('Food');",
+                            "    });",
+                            "}"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"userId\": {{userId}},\n  \"amount\": 25.50,\n  \"description\": \"Lunch at restaurant\",\n  \"category\": \"Food\",\n  \"date\": \"2025-09-06T12:00:00Z\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses"
+                    ]
+                },
+                "description": "Create a new expense record for a user"
+            }
+        },
+        {
+            "name": "Get All User Expenses (Paginated)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('Response is successful', () => {",
+                            "    pm.expect(pm.response.code).to.equal(200);",
+                            "});",
+                            "",
+                            "pm.test('Response has pagination metadata', () => {",
+                            "    const response = pm.response.json();",
+                            "    pm.expect(response.meta).to.exist;",
+                            "    pm.expect(response.meta.page).to.exist;",
+                            "    pm.expect(response.meta.limit).to.exist;",
+                            "    pm.expect(response.meta.total).to.exist;",
+                            "    pm.expect(response.data).to.be.an('array');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses?page=1&limit=10",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses"
+                    ],
+                    "query": [
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "10"
+                        }
+                    ]
+                },
+                "description": "Get all expenses with pagination"
+            }
+        },
+        {
+            "name": "Get Expenses by User ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/user/{{userId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "user",
+                        "{{userId}}"
+                    ]
+                },
+                "description": "Get all expenses for a specific user"
+            }
+        },
+        {
+            "name": "Get Expenses with Filters",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses?userId={{userId}}&category=Food&page=1&limit=5&startDate=2025-09-01&endDate=2025-09-30",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses"
+                    ],
+                    "query": [
+                        {
+                            "key": "userId",
+                            "value": "{{userId}}"
+                        },
+                        {
+                            "key": "category",
+                            "value": "Food"
+                        },
+                        {
+                            "key": "page",
+                            "value": "1"
+                        },
+                        {
+                            "key": "limit",
+                            "value": "5"
+                        },
+                        {
+                            "key": "startDate",
+                            "value": "2025-09-01"
+                        },
+                        {
+                            "key": "endDate",
+                            "value": "2025-09-30"
+                        },
+                        {
+                            "key": "description",
+                            "value": "lunch",
+                            "disabled": true
+                        }
+                    ]
+                },
+                "description": "Get expenses with various filters applied"
+            }
+        },
+        {
+            "name": "Get Specific Expense by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/{{expenseId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "{{expenseId}}"
+                    ]
+                },
+                "description": "Get a specific expense by UUID"
+            }
+        },
+        {
+            "name": "Get Total Expense by User",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('Total expense returned', () => {",
+                            "    const response = pm.response.json();",
+                            "    pm.expect(response.total).to.exist;",
+                            "    pm.expect(response.userId).to.exist;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/user/{{userId}}/total",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "user",
+                        "{{userId}}",
+                        "total"
+                    ]
+                },
+                "description": "Get total expense amount for a user"
+            }
+        },
+        {
+            "name": "Get Total Expense by User with Date Range",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/user/{{userId}}/total?startDate=2025-09-01&endDate=2025-09-30",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "user",
+                        "{{userId}}",
+                        "total"
+                    ],
+                    "query": [
+                        {
+                            "key": "startDate",
+                            "value": "2025-09-01"
+                        },
+                        {
+                            "key": "endDate",
+                            "value": "2025-09-30"
+                        }
+                    ]
+                },
+                "description": "Get total expense amount for a user within date range"
+            }
+        },
+        {
+            "name": "Get Expenses by Category",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('Categories breakdown returned', () => {",
+                            "    const response = pm.response.json();",
+                            "    pm.expect(response).to.be.an('array');",
+                            "    if (response.length > 0) {",
+                            "        pm.expect(response[0].category).to.exist;",
+                            "        pm.expect(response[0].total).to.exist;",
+                            "        pm.expect(response[0].count).to.exist;",
+                            "    }",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/user/{{userId}}/categories",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "user",
+                        "{{userId}}",
+                        "categories"
+                    ]
+                },
+                "description": "Get expense breakdown by category for a user"
+            }
+        },
+        {
+            "name": "Update User Expense",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('Expense updated successfully', () => {",
+                            "    pm.expect(pm.response.code).to.equal(200);",
+                            "    const response = pm.response.json();",
+                            "    pm.expect(response.amount).to.equal('30.00');",
+                            "    pm.expect(response.description).to.equal('Updated lunch expense');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "PATCH",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"amount\": 30.00,\n  \"description\": \"Updated lunch expense\",\n  \"category\": \"Food\"\n}"
+                },
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/{{expenseId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "{{expenseId}}"
+                    ]
+                },
+                "description": "Update an existing expense"
+            }
+        },
+        {
+            "name": "Delete User Expense",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test('Expense deleted successfully', () => {",
+                            "    pm.expect(pm.response.code).to.equal(204);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ],
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{baseUrl}}/user-expenses/{{expenseId}}",
+                    "host": [
+                        "{{baseUrl}}"
+                    ],
+                    "path": [
+                        "user-expenses",
+                        "{{expenseId}}"
+                    ]
+                },
+                "description": "Delete an expense by UUID"
+            }
+        }
+    ],
+    "event": [
+        {
+            "listen": "prerequest",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Global pre-request script",
+                    "console.log('Running request to: ' + pm.request.url);"
+                ]
+            }
+        },
+        {
+            "listen": "test",
+            "script": {
+                "type": "text/javascript",
+                "exec": [
+                    "// Global test script",
+                    "pm.test('Status code is not 500', () => {",
+                    "    pm.expect(pm.response.code).to.not.equal(500);",
+                    "});",
+                    "",
+                    "pm.test('Response time is acceptable', () => {",
+                    "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+                    "});"
+                ]
+            }
+        }
+    ]
+}
