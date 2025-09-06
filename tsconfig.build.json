@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "NodeNext",
     "target": "es2017",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
