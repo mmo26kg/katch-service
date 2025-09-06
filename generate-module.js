@@ -2,7 +2,7 @@ function generateModule(moduleName) {
     const { execSync } = require('child_process');
 
     // Generate module, controller, and service using Nest CLI
-    execSync(`nest generate module ${moduleName}/${moduleName} --no-spec`);
+    execSync(`nest generate module ${moduleName}/${moduleName}`);
     execSync(`nest generate controller ${moduleName} --no-spec`);
     execSync(`nest generate service ${moduleName} --no-spec`);
 
